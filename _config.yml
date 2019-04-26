@@ -1,0 +1,42 @@
+# Site settings
+title:            plnotes
+email:
+description:      >-
+                  
+baseurl: "/plnotes"
+url: "http://bitfragment.net"
+home:
+  name: bitfragment.net
+  url: http://bitfragment.net
+twitter_username: bitfragment
+github_username:  bitfragment
+
+# Build settings
+highlighter: rouge
+markdown: kramdown
+
+kramdown:
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..2
+  smart_quotes: lsquo,rsquo,ldquo,rdquo
+  input: GFM
+
+collections:
+  js:
+    output: true
+    permalink: /:collection/:name/
+  py:
+    output: true
+    permalink: /:collection/:name/
+  go:
+    output: true
+    permalink: /:collection/:name/
+
+defaults:
+  -
+    scope:
+      path: ""
+    values:
+      layout: "page"
