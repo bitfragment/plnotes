@@ -42,6 +42,7 @@ import (
 
 * No semicolons
 * Comments are `//` and `/* ... */`
+* `if` and `for` conditions are not parenthesized
 * `+` is overloaded for string concatenation
 * `+=` is valid and has all the usual variants
 * Go has postfix only `++` and `--`
@@ -57,12 +58,17 @@ import (
 
 ## I/O
 
-* `import "fmt"`
 * `fmt.Println()`
 * `fmt.Printf()` with e.g. `%0.2f` to format a float to two decimal points of 
   precision
-* `os.Args` is a subscriptable array of command-line arguments
-
+* `os.Args` is an array of command-line arguments
+* stdin
+    - `input := bufio.NewScanner(os.Stdin)`
+    - `for input.Scan() { /* do something with input.Text() */ }`
+    - `input.Scan()`
+        - removes newline
+        - returns `true` if there is a line
+        - returns `false` if there is no more input
 
 ## Strings
 
@@ -112,6 +118,50 @@ import (
 
 func main() {
     fmt.Println(strings.Join(os.Args[1:], " "))
+}
+```
+
+
+## Data structures: map
+
+* Create with `make`, e.g. `make(map[string]int)` initializes a map with
+  string keys and integer values, with keys set to zero values of `""` and
+  values set to zero values of 0.
+* Order of map iteration is not specified and in practice is random.
+
+Creating, adding elements to, and iterating over a map:
+
+```go
+counts := make(map[string]int)
+counts["foo"]++
+counts["bar"]++
+counts["bar"]++
+counts["baz"]++
+counts["baz"]++
+counts["baz"]++
+for elt, idx := range counts {
+    fmt.Println(elt, idx)
+}
+```
+
+Output (order not guaranteed):
+
+```
+foo 1
+bar 2
+baz 3
+```
+
+Taking standard input:
+
+```go
+counts := make(map[string]int)
+input := bufio.NewScanner(os.Stdin)
+for input.Scan() {
+    counts[input.Text()]++
+}
+for elt, idx := range counts {
+    fmt.Println(elt, idx)
 }
 ```
 
