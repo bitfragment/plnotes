@@ -36,12 +36,19 @@ func main() {
 * Single import declaration: `import "fmt"`
 * Functions and other package-level declarations may be in any order
 
-Preferred style for multiple import declarations: 
+Preferred style for multiple declarations (imports, variables, etc.) is to enclose them in parentheses:
 
 ```go
 import (
     "fmt"
     "os"
+)
+```
+
+```go
+const (
+    a = 1
+    b = 1
 )
 ```
 
@@ -59,7 +66,7 @@ import (
 * Variable declaration and initialization
     - Algol-style compact form (valid only inside functions): `x := 1`
     - `var s = "foo"` (valid at package level)
-    
+* Constant: `const`
 
 ## Strings
 
