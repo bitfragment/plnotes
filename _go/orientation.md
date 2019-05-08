@@ -21,11 +21,24 @@ func main() {
 
 ## Tools
 
+* I installed MacOS Homebrew **golang**
 * `go build myprogram.go` to compile and link
 * `go run myprogram.go` to compile, link and run
 * `go fmt` to format code (alphabetizes import declarations)
 * `go test`
 * `go test -bench` for benchmarking
+* Remote packages:
+    - `go get` to install (`-v` for verbose, `-u` to update)
+        + Mine (MacOS) installs in `~/go` by default
+            * This represents default `$GOPATH` ?
+        + Therefore add `$HOME/go/bin` to your shell `$PATH`
+    - `go list ...` to list all installed packages
+* Playground: https://play.golang.org/
+* Currently maintained REPLs I've tried (as of 2019-05-08)
+    - gomacro <https://github.com/cosmos72/gomacro>
+        + My preference. Fast; has integrated debugger
+    - gore <https://github.com/motemen/gore> was too slow for me
+    - go-pry <https://github.com/d4l3k/go-pry> - I did not try it
 
 
 ## File format and syntax
