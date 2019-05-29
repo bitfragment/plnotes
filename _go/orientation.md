@@ -2,6 +2,9 @@
 title: 'Go: getting oriented'
 ---
 
+## Contents
+{:.no_toc}
+
 * TOC
 {:toc}
 
@@ -25,6 +28,7 @@ func main() {
 * `go build myprogram.go` to compile and link
 * `go run myprogram.go` to compile, link and run
 * `go fmt` to format code (alphabetizes import declarations)
+* `go vet` to check code
 * `go test`
 * `go test -bench` for benchmarking
 * Remote packages:
@@ -43,28 +47,6 @@ func main() {
 
 ## File format and syntax
 
-* `package` declaration is required (but need not correspond to the file name)
-* `package main` defines a standalone executable
-    - it must have a `func main()`
-* Single import declaration: `import "fmt"`
-* Functions and other package-level declarations may be in any order
-
-Preferred style for multiple declarations (imports, variables, etc.) is to enclose them in parentheses:
-
-```go
-import (
-    "fmt"
-    "os"
-)
-```
-
-```go
-const (
-    a = 1
-    b = 1
-)
-```
-
 * No semicolons
 * Comments are `//` and `/* ... */`
 * `if` and `for` conditions are not parenthesized
@@ -72,14 +54,7 @@ const (
 * `+=` is valid and has all the usual variants
 * Go has postfix only `++` and `--`
     - these are statements, not expressions as in C, so `j = i++` is invalid
-* Uninitialized variables are initialized to a *zero value*: 0 for numeric
-  types, empty string for string
-* Variable declaration with default zero-value initialization: `var s string`
-* Multiple: `var a, b string`
-* Variable declaration and initialization
-    - Algol-style compact form (valid only inside functions): `x := 1`
-    - `var s = "foo"` (valid at package level)
-* Constant: `const`
+
 
 ## Strings
 
@@ -171,7 +146,6 @@ func main() {
             - `strdata := strings.Split(string(data), "\n")`
             - `for _, line := range strdata { /* do something with `line` */ } `
 
-
 Read file data in streaming mode (checks file error only, not scanner error):
 
 ```golang
@@ -195,6 +169,19 @@ for _, line := range strdata {
     fmt.Println(line)
 }
 ```
+
+
+## Network I/O
+
+* `net/http.Get(url`) returns `resp, err`; `resp` is a struct, `resp.Body` is a readable stream
+* `io/ioutil.ReadAll(resp.Body)` returns `body, err`
+
+
+## System calls
+
+* `os.Exit()`
+* `os.Stderr`
+
 
 
 ## Data structures: map
@@ -269,6 +256,6 @@ Run with `go test -bench=args1`.
 ## Sources
 
 Alan A. A. Donovan and Brian W. Kernighan, *[The Go Programming Language].*
-Addison-Wesley, 2016.
+Addison-Wesley, 2016, Chapter 1: Tutorial
 
 [The Go Programming Language]: http://www.gopl.io/
