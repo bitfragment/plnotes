@@ -37,6 +37,9 @@ func main() {
             * This represents default `$GOPATH` ?
         + Therefore add `$HOME/go/bin` to your shell `$PATH`
     - `go list ...` to list all installed packages
+* Tools not built in:
+    - `golang.org/x/tools/cmd/goimports` updates all import statements,
+      adding needed or removing unused
 * Playground: https://play.golang.org/
 * Currently maintained REPLs I've tried (as of 2019-05-08)
     - gomacro <https://github.com/cosmos72/gomacro>
@@ -93,6 +96,9 @@ func main() {
     fmt.Println(s)
 }
 ```
+
+Rather than use the blank identifier for the value variable, you can simply omit it:
+`for idx := range arr` is equivalent to `for idx, _ := range arr`.
 
 Rather than string concatenation, use `strings.Join`:
 

@@ -13,6 +13,7 @@ title: 'Go: program structure'
 
 * Use short names
 * Use camelCase
+* Handle an error and return — don't indent (e.g. enclose in an `else` block) the successful execution path
 
 
 ## File format and syntax
@@ -72,6 +73,7 @@ const (
 * `import ./foo` will import the contents of every file in directory `./foo`
 * You then use whatever package names were declared in those files, e.g., `package mypkg` → `mypkg.myname`
 * Package-level names are visible to all other files of the package, as if they composed a single file
+* By convention, the final segment of the *import path string* (an argument to `import`) and the *package name* (an argument to `package`) are identical
 
 
 ## Pointers
@@ -98,6 +100,17 @@ func main() {
 * `type <name> <standard type>`
 * Casting with `myType(value)`
 * Use case: with Fahrenheit and Celsius values to prevent them from being compared or combined directly
+
+
+## Scope
+
+* *Scope* is a region of text at compile time; *lifetime* is an interval of referrability in run time
+* The entire source of a program is considered a *universe block* having what in other languages we would call global scope
+* At package level, the order of declaration has no effect on scope: a declaration may refer to itself, or to a declaration that follows it
+* `init()` functions will be automatically called in the order in which they are declared, once the program starts. This is useful for e.g. precomputing a table of values
+* Programs are lexically scoped within blocks
+* "Inner" (inside a nested block) declarations of a given name will *shadow* or *hide* "outer" declarations of the same name
+* Use `var` if you need to declare a universe-block (i.e. global) variable inside a function
 
 
 ## Sources
