@@ -32,6 +32,7 @@ Basic data types are boolean, numeric, string.
 * Explicitly unsigned: `uint8`, `uint16`, `uint32`, `uint64`
 * `float32` and `float64`
     - Convention is to use `float64`
+* `complex64` and `complex128`
 * `byte` is for raw data, and is equivalent to `uint8`
 * `rune` is for a Unicode code point and is equivalent to `int32`
     - Rune literals are single-quoted Unicode characters: `const x rune = '🤖'`
@@ -55,6 +56,25 @@ Basic data types are boolean, numeric, string.
 * Left-shift zero-pads
 * Right-shift of an unsigned value zero-pads
 * Right-shift of a signed value pads with the sign bit
+
+## Booleans
+
+* Values of `bool` are `true` and `false`
+* `!` is logical negation
+* `&&` and `||` have short-circuiting behavior
+* There is no implicit conversion from boolean values to `0` or `1` or vice versa
+
+## Strings
+
+* Immutable sequences of bytes, interpreted as UTF-8 encoded *runes*
+* `len` returns **byte length**, not rune length
+* `str[i]` returns *i*th **byte** where 0 <= `i` < `len(str)`, not necessary the *i*th character
+* `str[i:j]` returns bytes from *i* to *j*
+  - `str[:5]` returns from 0 to 5
+  - `str[5:]` returns from 5 to end
+  - `str[:]` returns a copy of `str`
+* `+` is overloaded for string concatenation
+* `==`, `<`, etc. compare in lexicographic order, byte by byte
 
 ## Sources
 
