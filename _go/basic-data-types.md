@@ -75,6 +75,30 @@ Basic data types are boolean, numeric, string.
   - `str[:]` returns a copy of `str`
 * `+` is overloaded for string concatenation
 * `==`, `<`, etc. compare in lexicographic order, byte by byte
+* String literals are enclosed in double quotes
+* Raw string literals are enclosed in backticks
+  - They can spread over several lines of source code
+  - They are useful for writing regexps, HTML templates, etc.
+* `strings` provides string manipulation functions (e.g., `Contains`, `Count`, `Index`, `HasPrefix`, `Join`)
+* `bytes` provides functions for working with byte slices (mutable, but otherwise like strings) --- many are counterparts of those in `strings`
+* `strconv` provides string conversion functions (e.g., `Itoa` for int to ASCII. `ParseInt`, `FormatInt`)
+* `unicode` provides rune classification functions (e.g., `IsDigit`, `IsLetter`)
+
+## Constants
+
+* Use `const` keyword
+* Convention is to *not* write constant names in uppercase
+
+Use the `iota` *constant generator* to create an enum. Here, `a` is assigned
+the value 0, `b` the value 1, and `c` the value 2:
+
+```go
+const (
+    a = iota
+    b
+    c
+)
+```
 
 ## Sources
 
