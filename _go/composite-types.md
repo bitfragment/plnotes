@@ -23,6 +23,26 @@ title: 'Go: composite types'
   array argument, not a reference
     - If you don't want this behavior, you can pass a pointer to an array
 
+## Slices
+
+* A slice is a variable-length sequence that provides access to an underlying array
+* A slice is composed of a pointer, a length, and a capacity
+    - The *length*, accessed by `len()`, is the number of elements in the slice
+    - The *capacity*, accessed by `cap()`, is the number of elements between the start of the slice and the end of the underlying array
+* The slice operator `s[i:j]` creates a new slice referring to elements `i` through `j` of `s` (which could be an array, a pointer to an array, or another slice)
+    - `s[:3]` includes elements from index 0–3
+    - `s[3:]` includes elements from index 3 to the end of `s`
+    - `s[:]` includes the entirety of `s`
+
+You can *extend a slice* beyond its own length (though *not* beyond the capacity
+of the underlying array):
+
+```golang
+x := [...]int{1, 2, 3} // [1 2 3]
+y := x[:1]             // [1]
+z := y[:2]             // exceeds y's length! => [1 2]
+```
+
 ## Sources
 
 Alan A. A. Donovan and Brian W. Kernighan, *[The Go Programming Language].*
