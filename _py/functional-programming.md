@@ -8,7 +8,6 @@ title: "Python functional programming"
 * TOC
 {:toc}
 
-
 ## Functions are first-class citizens
 
 ```py
@@ -112,7 +111,7 @@ The first two are still in the standard library. `reduce()` was banished to `fun
 
 Not considered Pythonic. Use list comprehensions instead.
 
-"Guido [van Rossum] actually advocated for eliminating all three of `reduce()`, `map()`, and `filter()` from Python. [...] As it happens, the previously mentioned list comprehension covers the functionality provided by all these functions and much more."
+Sturtz, "[Functional Programming in Python][1]": "Guido [van Rossum] actually advocated for eliminating all three of `reduce()`, `map()`, and `filter()` from Python. [...] As it happens, the previously mentioned list comprehension covers the functionality provided by all these functions and much more."
 
 All three return iterables.
 
@@ -148,7 +147,7 @@ data = list(map(lambda x, y, z: x + y + z, *data))
 assert data == ['abc', 'abc', 'abc']
 ```
 
-`map()` and `filter()` can be implemented using `reduce()`:
+`map()` and `filter()` can be implemented using `reduce()`. From Sturtz, [Functional Programming in Python: When and How to Use It][1]:
 
 ```py
 def _map(func, iterable):
@@ -173,3 +172,12 @@ data[-1] = 'abcfoo'
 data = _filter(lambda x: x[0] != 'a', data)
 assert data == ['fooabc', 'fooabc']
 ```
+
+## Sources
+
+John Sturtz, [Functional Programming in Python: When and How to Use It][1]
+
+
+
+
+[1]: https://realpython.com/python-functional-programming/
