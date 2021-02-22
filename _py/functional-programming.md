@@ -9,13 +9,6 @@ title: "Python functional programming"
 {:toc}
 
 
-```py
-from rich import inspect, pretty, print, traceback
-
-pretty.install()
-traceback.install()
-```
-
 ## Functions are first-class citizens
 
 ```py
