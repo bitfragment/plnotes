@@ -59,6 +59,64 @@ func main() {
     - these are statements, not expressions as in C, so `j = i++` is invalid
 
 
+## Assertions
+
+Not provided. Use `if <failing_cond> { panic("failed") }` instead.
+
+
+## Variable declarations
+
+Use `:=` operator to initialize, `=` to assign.
+
+The following four ways to declare and initialize variables are 
+equivalent.
+
+> In practice, you should generally use one of the first two forms,
+> with explicit initialization to say that the initial value is
+> important and implicit initialization to say that the initial value
+> doesn't matter.
+—Donovan and Kernighan, *The Go Programming Language* 7
+
+First: short variable declaration. Declare and initialize without `var` 
+keyword or type, using `:=`. This form may only be used within a 
+function.
+
+```go
+a := "foo"
+if a != "foo" { panic("failed") }
+```
+
+Second: declare with type. Here, is default-initialized with empty string.
+
+```go
+var b string
+if b != "" { panic("failed") }
+```
+
+Assign another value using `=` operator.
+
+```go
+b = "bar"
+if b != "bar" { panic("failed") }
+```
+
+Third: declare and initialize with a value, using `=`.
+
+```go
+var c string = "baz"
+if c != "baz" { panic("failed") }
+```
+
+Fourth: declare and initialize without type, using `=`. "Rarely used 
+except when declaring multiple variables" (Donovan and Kernighan, 
+*The Go Programming Language* 7).
+
+```go
+var d = "qux"
+if d != "qux" { panic("failed") }
+```
+
+
 ## Strings
 
 * `import "strings"`
@@ -80,20 +138,13 @@ unused local variables, so if you're not going to use the index variable, the
 convention is to use the *blank identifier* `_`:
 
 ```go
-package main
-
-import (
-    "fmt"
-    "os"
-)
-
-func main() {
-    var s, sep string
-    for _, arg := range os.Args[1:] {
-        s += sep + arg
-        sep = " "
-    }
-    fmt.Println(s)
+func echo() {
+	s, sep := "", ""
+	for _, arg := range os.Args[1:] {
+		s += sep + arg
+		sep = " "
+	}
+	fmt.Println(s)
 }
 ```
 
@@ -103,16 +154,8 @@ Rather than use the blank identifier for the value variable, you can simply omit
 Rather than string concatenation, use `strings.Join`:
 
 ```go
-package main
-
-import (
-    "fmt"
-    "os"
-    "strings"
-)
-
-func main() {
-    fmt.Println(strings.Join(os.Args[1:], " "))
+func echo() {
+	fmt.Println(strings.Join(os.Args[1:], " "))
 }
 ```
 
@@ -181,6 +224,7 @@ for _, line := range strdata {
 
 * `net/http.Get(url`) returns `resp, err`; `resp` is a struct, `resp.Body` is a readable stream
 * `io/ioutil.ReadAll(resp.Body)` returns `body, err`
+
 
 
 ## System calls
