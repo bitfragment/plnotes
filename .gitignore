@@ -1,3 +1,6 @@
 _site
+*.go
+*.code-workspace
 .sass-cache
+.jekyll-cache/
 .jekyll-metadata
