@@ -31,12 +31,12 @@ Here `os.Args` is a slice (a dynamically sized array) of strings. We concatenate
 
 ```go
 func echo() {
-	s, sep := "", ""
-	for _, arg := range os.Args[1:] {
-		s += sep + arg
-		sep = " "
-	}
-	fmt.Println(s)
+    s, sep := "", ""
+    for _, arg := range os.Args[1:] {
+        s += sep + arg
+        sep = " "
+    }
+    fmt.Println(s)
 }
 ```
 
@@ -71,16 +71,16 @@ Note, does not handle errors from `input.Scan()`, but should.
 
 ```go
 func dup1() {
-	counts := make(map[string]int)
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		counts[input.Text()]++
-	}
-	for line, n := range counts {
-		if n > 1 {
-			fmt.Printf("%d\t%s\n", n, line)
-		}
-	}
+    counts := make(map[string]int)
+    input := bufio.NewScanner(os.Stdin)
+    for input.Scan() {
+        counts[input.Text()]++
+    }
+    for line, n := range counts {
+        if n > 1 {
+            fmt.Printf("%d\t%s\n", n, line)
+        }
+    }
 }
 ``` 
 
