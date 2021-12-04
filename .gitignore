@@ -1,5 +1,9 @@
 _site
+*.clj
 *.go
+*.hs
+*.lisp
+*.scm
 *.code-workspace
 .sass-cache
 .jekyll-cache/
