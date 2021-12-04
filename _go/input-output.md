@@ -9,6 +9,14 @@ title: 'Go: input and output'
 {:toc}
 
 
+## Sources
+
+Alan A. A. Donovan and Brian W. Kernighan, *[The Go Programming Language].*
+Addison-Wesley, 2016, Chapter 1: Tutorial
+
+[The Go Programming Language]: http://www.gopl.io/
+
+
 ## Read stdin
 
 Note, does not handle errors from `input.Scan()`, but should.
@@ -178,9 +186,48 @@ func fetch(url string, ch chan<- string) {
 ```
 
 
-## Sources
+## Minimal web server
 
-Alan A. A. Donovan and Brian W. Kernighan, *[The Go Programming Language].*
-Addison-Wesley, 2016, Chapter 1: Tutorial
+Returns the path component of the server access URL.
 
-[The Go Programming Language]: http://www.gopl.io/
+Usage:
+```sh
+$ go run main.go &
+$ open http://localhost:8000
+Result:
+	 URL.Path = "/"
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+```
+
+Connect handler() to incoming URLs and start a server listening on
+port 8000. WHen a request arrives it is passed to handler().
+
+```go
+func server() {
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+```
+
+Request is a struct of type http.Request, whose fields include one
+for the URL of the incoming request. Extract the path component
+from the request URL and send it back as the response.
+
+```go
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+}
+
+func main() {
+	server()
+}
+```
