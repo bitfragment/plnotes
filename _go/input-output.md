@@ -115,6 +115,69 @@ func dup3() {
 ``` 
 
 
+## Network I/O
+
+Demonstrated using the package `net/http` and a variation on the 
+`curl` utility.
+
+```go
+func fetchurl() {
+    for _, url := range os.Args[1:] {
+        resp, err := http.Get(url)
+        if err != nil {
+            fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
+            os.Exit(1)
+        }
+        b, err := ioutil.ReadAll(resp.Body) // body is readable stream
+        resp.Body.Close()
+        if err != nil {
+            fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
+            os.Exit(1)
+        }
+        fmt.Printf("%s", b)
+    }
+}
+```
+
+Fetch URLs concurrently.
+
+```go
+func fetchall() {
+    start := time.Now()
+    ch := make(chan string) // create a channel of strings
+    for _, url := range os.Args[1:] {
+        go fetch(url, ch) // goroutine calls fetch() asynchronously
+    }
+    for range os.Args[1:] {
+        fmt.Println(<-ch) // receive the summary line from channel ch
+    }
+    fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+}
+
+func fetch(url string, ch chan<- string) {
+    start := time.Now()
+    resp, err := http.Get(url)
+    if err != nil {
+        ch <- fmt.Sprint(err) // send to channel ch
+        return
+    }
+
+    // Read the response and discard it by writing to ioutil.Discard
+    // output stream, retaining only the byte count.
+    nbytes, err := io.Copy(ioutil.Discard, resp.Body)
+    resp.Body.Close() // don't leak resources
+    if err != nil {
+        ch <- fmt.Sprintf("while reading %s: %v", url, err)
+        return
+    }
+    secs := time.Since(start).Seconds()
+
+    // Send a summary line on the channel ch
+    ch <- fmt.Sprintf("%.2fs %7d %s", secs, nbytes, url)
+}
+```
+
+
 ## Sources
 
 Alan A. A. Donovan and Brian W. Kernighan, *[The Go Programming Language].*
