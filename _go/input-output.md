@@ -195,27 +195,17 @@ Usage:
 $ go run main.go &
 $ open http://localhost:8000
 Result:
-	 URL.Path = "/"
+     URL.Path = "/"
 ```
 
 ```go
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
+    "fmt"
+    "log"
+    "net/http"
 )
-```
-
-Connect handler() to incoming URLs and start a server listening on
-port 8000. WHen a request arrives it is passed to handler().
-
-```go
-func server() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe("localhost:8000", nil))
-}
 ```
 
 Request is a struct of type http.Request, whose fields include one
@@ -224,10 +214,80 @@ from the request URL and send it back as the response.
 
 ```go
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+    fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+}
+```
+
+Connect handler() to incoming URLs and start a server listening on
+port 8000. WHen a request arrives it is passed to handler().
+
+```go
+func server() {
+    http.HandleFunc("/", handler)
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
 func main() {
-	server()
+    server()
+}
+```
+
+
+## Adding a request counter
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+    "net/http"
+    "sync"
+)
+
+var mu sync.Mutex
+var count int
+```
+
+Display the Path component of the requested URL.
+`mu.Lock()` and `mu.Unlock()` ensure a race condition can't be caused by
+concurrent requests trying to update `count` as the same time.
+
+```go
+func handler(w http.ResponseWriter, r *http.Request) {
+    mu.Lock()
+    count++
+    mu.Unlock()
+    fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+}
+```
+
+Display the accumulated number of calls.
+
+```go
+func counter(w http.ResponseWriter, r *http.Request) {
+    mu.Lock()
+    fmt.Fprintf(w, "Count %d\n", count)
+    mu.Unlock()
+}
+```
+
+Two handlers serve requests to two different URLs.
+Each handler is run in a separate goroutine, so the server can
+serve multiple requests simultaneously.
+
+```go
+func server2() {
+    // Handle request to /
+    http.HandleFunc("/", handler)
+
+    // Handler request to /count
+    http.HandleFunc("/count", counter)
+    
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+
+func main() {
+    server2()
 }
 ```
