@@ -6,6 +6,15 @@ layout: default
 
   <h1 class="page-heading">Programming language notes</h1>
 
+  <h2>Forth</h2>
+  <ul class="post-list">
+    {% for note in site.forth %}
+      <li>
+          <a class="post-link" href="{{ note.url | prepend: site.baseurl }}">{{ note.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+
   <h2>Go</h2>
   <ul class="post-list">
     {% for note in site.go %}

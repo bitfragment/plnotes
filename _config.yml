@@ -24,6 +24,9 @@ kramdown:
   input: GFM
 
 collections:
+  forth:
+    output: true
+    permalink: /:collection/:name/
   js:
     output: true
     permalink: /:collection/:name/
