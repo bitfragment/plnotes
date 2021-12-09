@@ -151,8 +151,8 @@ stack, performs addition, and pushes result onto the stack.
 Format: `( before -- after )`
 
 ```forth
-: add5 5 + ; \ ( n -- n ) => before, one number should be on the stack,
-             \               after, one number should be on the stack
+: add5 ( n -- n ) 5 + ; \ before, one number should be on the stack,
+                        \ after, one number should be on the stack.
 
 ." 1 + 5 = "
 1 add5       \ now the result is on the stack
