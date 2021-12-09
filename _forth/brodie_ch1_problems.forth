@@ -1,1 +1,0 @@
-\ WORKINGHERE problems https://www.forth.com/starting-forth/1-forth-stacks-dictionary/
