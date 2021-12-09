@@ -11,8 +11,11 @@ title: 'Forth: basics'
 
 ## Sources
 
-Leo Brodie, *[Starting FORTH],* Chapter 1: Fundamental Forth
+* Leo Brodie, *[Starting FORTH],* Chapter 1: Fundamental Forth
+* [Gforth Manual] — [5.24 Programming Tools]
 
+[Gforth Manual]: https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/
+[5.24 Programming Tools]: https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/Programming-Tools.html#Programming-Tools
 [Starting FORTH]: https://www.forth.com/starting-forth/
 
 
@@ -89,16 +92,28 @@ hello cr
 
 LIFO (last in, first out).
 
-Push 1 onto the stack. Then pop it off the stack and display it.
+Push 1 onto the stack. 
 
 ```forth
-1 . cr
+1
+```
+
+Inspect the stack non-destructively.
+
+```forth
+.s
+```
+
+Now pop 1 off the stack and display it.
+
+```forth
+.
 ```
 
 Push 1 and 2 onto the stack. Then pop 2 off the stack and display it.
 
 ```forth
-1 2 . cr
+1 2 .
 ```
 
 Pop 1 off the stack and display it.
@@ -111,7 +126,7 @@ At this point the stack is empty. Trigger stack underflow by trying
 to pop it again. This will halt the program, so we comment it out here.
 
 ```forth
-\ . cr
+\ .
 ```
 
 Catch the 'Address alignment exception' so the program will not halt.
@@ -180,3 +195,23 @@ Hello world
 1 + 4 = 5 
 1 + 5 = 6 
 ```
+
+
+## Debugging tools
+
+The word `~~` will print the source line and stack contents at that point.
+
+```forth
+: f ( -- n ) 1 ~~ 2 ~~ + ~~ . ~~ ;
+f
+```
+
+Output:
+
+```sh
+/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<1> 1 
+/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<2> 1 2 
+/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<1> 3 
+/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<0> 
+```
+
