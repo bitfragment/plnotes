@@ -163,7 +163,7 @@ stack, performs addition, and pushes result onto the stack.
 ```
 
 
-## Stack notation in commenting word definitions.
+## Stack-effect comments in word definitions
 
 Format: `( before -- after )`
 
