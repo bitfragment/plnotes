@@ -95,31 +95,31 @@ LIFO (last in, first out).
 Push 1 onto the stack. 
 
 ```forth
-1
+1         ."       <- push 1 onto stack " cr
 ```
 
 Inspect the stack non-destructively.
 
 ```forth
-.s
+.s        ." <- inspect stack non-destructively " cr
 ```
 
 Now pop 1 off the stack and display it.
 
 ```forth
-.
+.         ."     <- pop stack and display " cr
 ```
 
 Push 1 and 2 onto the stack. Then pop 2 off the stack and display it.
 
 ```forth
-1 2 .
+1 2 .     ."     <- push 1 and 2 onto stack then pop and display " cr
 ```
 
 Pop 1 off the stack and display it.
 
 ```forth
-. cr
+.         ."     <- pop and display " cr
 ```
 
 At this point the stack is empty. Trigger stack underflow by trying
@@ -132,7 +132,7 @@ to pop it again. This will halt the program, so we comment it out here.
 Catch the 'Address alignment exception' so the program will not halt.
 
 ```forth
-' . catch
+' . catch ."       <- catch exception " cr
 ```
 
 ## Stack arithmetic
@@ -144,6 +144,8 @@ two numbers off the stack, performs addition, and pushes result onto
 the stack.
 
 ```forth
+." Stack arithmetic: " cr
+
 2 2 + . cr
 
 ." 2 + 2 = "
@@ -175,6 +177,16 @@ Format: `( before -- after )`
 ```
 
 
+## Debugging tools
+
+The word `~~` will print the source line and stack contents at that point.
+
+```forth
+: f ( -- n ) 1 ~~ 2 ~~ + ~~ . ~~ ;
+f
+```
+
+
 ## Exit
 
 ```forth
@@ -187,31 +199,19 @@ Output:
 ```sh
 &
 Hello world 
-1 
-2 
-1 
+      <- push 1 onto stack 
+<1> 1 <- inspect stack non-destructively 
+1     <- pop stack and display 
+2     <- add 1 and 2 to stack then pop and display 
+1     <- pop and display 
+      <- catch exception 
+Stack arithmetic:
 4 
 2 + 2 = 4 
 1 + 4 = 5 
 1 + 5 = 6 
-```
-
-
-## Debugging tools
-
-The word `~~` will print the source line and stack contents at that point.
-
-```forth
-: f ( -- n ) 1 ~~ 2 ~~ + ~~ . ~~ ;
-f
-```
-
-Output:
-
-```sh
 /Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<1> 1 
 /Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<2> 1 2 
 /Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<1> 3 
 /Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<0> 
 ```
-
