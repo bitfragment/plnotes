@@ -1,5 +1,5 @@
 ---
-title: 'Forth: basics'
+title: 'Forth basics'
 ---
 
 ## Contents
