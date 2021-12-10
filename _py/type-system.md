@@ -14,7 +14,7 @@ In general, types originate from *object-generation expressions* like `"foo"` or
 
 Types are not associated with names; they are associated with objects. "Variables are generic in nature; they always simply refer to a particular object at a particular point in time" (Lutz, *Learning Python*).
 
-In addition to a *reference counter* (see [Python object reference]({{site.baseurl/py/object-reference/}})), each object has as a standard header field a *type designator.* Lutz, *Learning Python*:
+In addition to a *reference counter* (see [Python object reference]({{site.baseurl}}/py/object-reference/)), each object has as a standard header field a *type designator.* Lutz, *Learning Python*:
 
 > The integer object 3, for example, will contain the value 3, plus a designator that tells Python that the object is an integer (strictly speaking, a pointer to an object called int, the name of the integer type). The type designator of the 'spam' string object points to the string type (called str) instead. Because objects know their types, variables don’t have to.
 
