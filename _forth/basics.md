@@ -11,7 +11,9 @@ title: 'Forth basics'
 
 ## Sources
 
-* Leo Brodie, *[Starting FORTH],* Chapter 1: Fundamental Forth
+* Leo Brodie, *[Starting FORTH],* 
+  * Chapter 1: Fundamental Forth
+  * Chapter 2: How to Get Results
 * [Gforth Manual] — [5.24 Programming Tools]
 
 [Gforth Manual]: https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/
@@ -160,6 +162,15 @@ the stack.
 2 2 + .
 ```
 
+Integer arithmetic operators. Limited to single-precision integers.
+
+```forth
+2 2 + 4 = .
+2 2 - 0 = .
+2 2 * 4 = .
+2 2 / 1 = .
+```
+
 This word definition expects a number to be on the stack. It pushes
 the number 4 onto the stack, then takes the top two numbers off the
 stack, performs addition, and pushes result onto the stack.
@@ -169,6 +180,52 @@ stack, performs addition, and pushes result onto the stack.
 1 add4 .
 ```
 
+This is the equivalent of the equation *(a + b) * c* where *a* = 1,
+*b* = 2, *c* = 3.
+
+```forth
+3 1 2 + * .
+```
+
+Here, 3 and 9 are pushed onto the stack, then popped, summed, and the
+result is pushed onto the stack. Then, 4 and 6 are pushed onto the 
+stack, then popped, summed, and the result is pushed onto the stack.
+Finally, the first two values on the stack are popped, multiplied, and
+the result is pushed onto the stack.
+
+```forth
+3 9 + 4 6 + * .
+```
+
+The following are equivalent.
+
+In the first, 1 and 2 are pushed onto the stack, then popped, summed,
+and the result is pushed onto the stack. Then, that result and 3 are
+popped, summed, and the result is pushed onto the stack. Then, that
+result and 4 are popped, summed, and so on.
+
+Q: what is the correct way to explain stack operations in the second case?
+
+```forth
+1 2 + 3 + 4 + 5 + .
+1 2 3 4 5 + + + + .
+```
+
+You can't use decimal values with integer arithmetic operators.
+
+```forth
+2.0 2.0 + 4.0 = .
+```
+
+You can only get integer results of division.
+
+```forth
+5 2 / .
+```
+
+```forth
+div
+```
 
 ## Stack-effect comments in word definitions
 
@@ -181,6 +238,9 @@ the stack after the call.
 1 add5 .
 ```
 
+```forth
+div
+```
 
 ## Debugging
 
@@ -191,6 +251,9 @@ The word `~~` will print the source line and stack contents at that point.
 f2
 ```
 
+```forth
+div
+```
 
 ## Gforth assertions
 
@@ -205,7 +268,6 @@ pushed onto the stack by `f`.
 f3-test
 ```
 
-
 ## Execute this file
 
 ```txt
@@ -219,7 +281,7 @@ Type `bye' to exit
 : blip      margin star ;  ok
 : bar       margin 5 stars ;  ok
 : f         bar blip bar blip blip cr ;  ok
-f
+f 
    *****
    *
    *****
@@ -227,13 +289,13 @@ f
    *
  ok
 : div cr 68 stars ;  ok
-div
+div 
 ******************************************************************** ok
 : amp [char] & emit ;  ok
 amp & ok
 : hello ." Hello world " ;  ok
 hello Hello world  ok
-div
+div 
 ******************************************************************** ok
 1  ok
 .s <1> 1  ok
@@ -243,20 +305,36 @@ div
 . -1  ok
 \ .  ok
 ' . catch  ok
-div
+div 
 ******************************************************************** ok
 clearstack  ok
 2 2 + . 4  ok
+2 2 + 4 = . -1  ok
+2 2 - 0 = . -1  ok
+2 2 * 4 = . -1  ok
+2 2 / 1 = . -1  ok
 : add4 4 + ;  ok
 1 add4 . 5  ok
+3 1 2 + * . 9  ok
+3 9 + 4 6 + * . 120  ok
+1 2 + 3 + 4 + 5 + . 15  ok
+1 2 3 4 5 + + + + . 15  ok
+2.0 2.0 + 4.0 = . 0  ok
+5 2 / . 2  ok
+div 
+******************************************************************** ok
 : add5 ( n -- n ) 5 + ;  ok
 1 add5 . 6  ok
+div 
+******************************************************************** ok
 : f2 ( -- n ) clearstack 1 ~~ 2 ~~ ;  ok
-f2
-*somewhere*:30:<1> 1
+f2 
+*somewhere*:42:<1> 1 
 
-*somewhere*:30:<2> 1 2
+*somewhere*:42:<2> 1 2 
  ok
+div 
+******************************************************************** ok
 : f3 ( n -- n ) 1 + ;  ok
 : f3-test 2 f3 assert( 3 = ) ;  ok
 f3-test  ok
