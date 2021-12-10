@@ -36,13 +36,11 @@ Type `bye' to exit
 bye
 ```
 
-
 ## Run file from command line
 
 ```sh
 $ gforth basics.forth
 ```
-
 
 ## A first program
 
@@ -50,43 +48,41 @@ A series of word definitions (function definitions) forming a program
 that displays a graphical letter 'F' formed using ASCII characters.
 
 ```forth
-: star      42 emit ;         \ Display ASCII 42 (asterisk)
-: stars     0 do star loop ;  \ Call `star` n times
-: margin    cr 3 spaces ;     \ Display carriage return and 3 spaces
+: star      42 emit ;
+: stars     0 do star loop ;
+: margin    cr 3 spaces ;
 : blip      margin star ;
 : bar       margin 5 stars ;
 : f         bar blip bar blip blip cr ;
-
-f cr
+f
 ```
 
-Output:
+## Display a divider
 
-```sh
-   *****
-   *
-   *****
-   *
-   *
+```forth
+: div cr 68 stars ;
+div
 ```
-
 
 ## Other basics
 
 Display a char by specifying literal. Use only inside a word definition.
 
 ```forth
-: star2     [char] & emit ;
-star2 cr
+: amp [char] & emit ;
+amp
 ```
 
 Specify a string using "dot-quote" format.
 
 ```forth
-: hello     ." Hello world " ;
-hello cr
+: hello ." Hello world " ;
+hello
 ```
 
+```forth
+div
+```
 
 ## The stack
 
@@ -95,31 +91,38 @@ LIFO (last in, first out).
 Push 1 onto the stack. 
 
 ```forth
-1         ."       <- push 1 onto stack " cr
+1
 ```
 
 Inspect the stack non-destructively.
 
 ```forth
-.s        ." <- inspect stack non-destructively " cr
+.s
 ```
 
 Now pop 1 off the stack and display it.
 
 ```forth
-.         ."     <- pop stack and display " cr
+.
 ```
 
 Push 1 and 2 onto the stack. Then pop 2 off the stack and display it.
 
 ```forth
-1 2 .     ."     <- push 1 and 2 onto stack then pop and display " cr
+1 2 .
 ```
 
-Pop 1 off the stack and display it.
+Test the number at the top of the stack. This pops the stack and pushes
+the result of the test, -1 (true), onto the stack
 
 ```forth
-.         ."     <- pop and display " cr
+1 =
+```
+
+Pop -1 off the stack and display it.
+
+```forth
+.
 ```
 
 At this point the stack is empty. Trigger stack underflow by trying
@@ -132,7 +135,17 @@ to pop it again. This will halt the program, so we comment it out here.
 Catch the 'Address alignment exception' so the program will not halt.
 
 ```forth
-' . catch ."       <- catch exception " cr
+' . catch
+```
+
+```forth
+div
+```
+
+Clear the stack.
+
+```forth
+clearstack
 ```
 
 ## Stack arithmetic
@@ -144,12 +157,7 @@ two numbers off the stack, performs addition, and pushes result onto
 the stack.
 
 ```forth
-." Stack arithmetic: " cr
-
-2 2 + . cr
-
-." 2 + 2 = "
-2 2 + . cr
+2 2 + .
 ```
 
 This word definition expects a number to be on the stack. It pushes
@@ -157,61 +165,99 @@ the number 4 onto the stack, then takes the top two numbers off the
 stack, performs addition, and pushes result onto the stack.
 
 ```forth
-: add4      4 + ;
-." 1 + 4 = "
-1 add4 . cr
+: add4 4 + ;
+1 add4 .
 ```
 
 
 ## Stack-effect comments in word definitions
 
-Format: `( before -- after )`
+Format: `( before -- after )`, with "before" meaning what is at the top
+of the stack before the call, and "after" meaning what is at the top of
+the stack after the call.
 
 ```forth
-: add5 ( n -- n ) 5 + ; \ before, one number should be on the stack,
-                        \ after, one number should be on the stack.
-
-." 1 + 5 = "
-1 add5       \ now the result is on the stack
-. cr
+: add5 ( n -- n ) 5 + ;
+1 add5 .
 ```
 
 
-## Debugging tools
+## Debugging
 
 The word `~~` will print the source line and stack contents at that point.
 
 ```forth
-: f ( -- n ) 1 ~~ 2 ~~ + ~~ . ~~ ;
-f
+: f2 ( -- n ) clearstack 1 ~~ 2 ~~ ;
+f2
 ```
 
 
-## Exit
+## Gforth assertions
+
+Can only be used in compile-time (colon) definitions. Here, define a 
+word `f` that adds one to the number at the top of the stack. Then,
+define a test word `f-test` that asserts something about the value
+pushed onto the stack by `f`.
 
 ```forth
-bye
+: f3 ( n -- n ) 1 + ;
+: f3-test 2 f3 assert( 3 = ) ;
+f3-test
 ```
 
 
-Output:
+## Execute this file
 
-```sh
-&
-Hello world 
-      <- push 1 onto stack 
-<1> 1 <- inspect stack non-destructively 
-1     <- pop stack and display 
-2     <- add 1 and 2 to stack then pop and display 
-1     <- pop and display 
-      <- catch exception 
-Stack arithmetic:
-4 
-2 + 2 = 4 
-1 + 4 = 5 
-1 + 5 = 6 
-/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<1> 1 
-/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<2> 1 2 
-/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<1> 3 
-/Users/blennon/sync/desk/plnotes/_forth/basics.forth:55:<0> 
+```txt
+$ codedown forth < basics.md | grep . | gforth
+Gforth 0.7.3, Copyright (C) 1995-2008 Free Software Foundation, Inc.
+Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
+Type `bye' to exit
+: star      42 emit ;  ok
+: stars     0 do star loop ;  ok
+: margin    cr 3 spaces ;  ok
+: blip      margin star ;  ok
+: bar       margin 5 stars ;  ok
+: f         bar blip bar blip blip cr ;  ok
+f
+   *****
+   *
+   *****
+   *
+   *
+ ok
+: div cr 68 stars ;  ok
+div
+******************************************************************** ok
+: amp [char] & emit ;  ok
+amp & ok
+: hello ." Hello world " ;  ok
+hello Hello world  ok
+div
+******************************************************************** ok
+1  ok
+.s <1> 1  ok
+. 1  ok
+1 2 . 2  ok
+1 =  ok
+. -1  ok
+\ .  ok
+' . catch  ok
+div
+******************************************************************** ok
+clearstack  ok
+2 2 + . 4  ok
+: add4 4 + ;  ok
+1 add4 . 5  ok
+: add5 ( n -- n ) 5 + ;  ok
+1 add5 . 6  ok
+: f2 ( -- n ) clearstack 1 ~~ 2 ~~ ;  ok
+f2
+*somewhere*:30:<1> 1
+
+*somewhere*:30:<2> 1 2
+ ok
+: f3 ( n -- n ) 1 + ;  ok
+: f3-test 2 f3 assert( 3 = ) ;  ok
+f3-test  ok
 ```
