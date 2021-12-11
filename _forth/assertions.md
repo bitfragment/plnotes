@@ -29,6 +29,13 @@ pushed onto the stack by `add1`.
 add1-test
 ```
 
+Outside of a colon definition, you can throw an exception if a computed
+flag is not true with `( flag ) 0= s" msg" exception  and throw`.
+
+```forth
+5 2 / 2 = 0= s" not equal" exception and throw
+```
+
 ## Execute this file
 
 ```txt
@@ -39,4 +46,5 @@ Type `bye' to exit
 : add1 ( n -- n ) 1 + ;  ok
 : add1-test 2 add1 assert( 3 = ) ;  ok
 add1-test  ok
+5 2 / 2 = 0= s" not equal" exception and throw  ok
 ```
