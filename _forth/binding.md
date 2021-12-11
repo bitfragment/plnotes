@@ -39,7 +39,7 @@ apples ?
 
 ## Execute this file
 
-```sh
+```txt
 $ codedown forth < binding.md | gforth
 Gforth 0.7.3, Copyright (C) 1995-2008 Free Software Foundation, Inc.
 Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
