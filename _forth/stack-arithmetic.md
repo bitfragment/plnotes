@@ -25,6 +25,9 @@ Use postfix notation.
 
 Limited to single-precision integers.
 
+Perform operations, test the results with `=`, and display the results
+of the tests (`-1` for true, `0` for false).
+
 ```forth
 2 2 + 4 = .
 2 2 - 0 = .
@@ -33,22 +36,23 @@ Limited to single-precision integers.
 ```
 
 You can't use decimal values with integer arithmetic operators.
+This evaluates to false.
 
 ```forth
 2.0 2.0 + 4.0 = .
 ```
 
-You can only get integer results of division.
+You can only get integer results of division. This evaluates to true.
 
 ```forth
-5 2 / .
+5 2 / 2 = .
 ```
 
 ### Examples: addition
 
 Push 2 onto the stack. Then push 2 onto the stack. `+` takes the top
 two numbers off the stack, performs addition, and pushes result onto
-the stack.
+the stack. `.` pops the result and displays it.
 
 ```forth
 2 2 + .
@@ -60,7 +64,7 @@ stack, performs addition, and pushes result onto the stack.
 
 ```forth
 : add4 4 + ;
-1 add4 .
+1 add4 5 = .
 ```
 
 The following are equivalent.
@@ -73,8 +77,8 @@ result and 4 are popped, summed, and so on.
 Q: what is the correct way to explain stack operations in the second case?
 
 ```forth
-1 2 + 3 + 4 + 5 + .
-1 2 3 4 5 + + + + .
+1 2 + 3 + 4 + 5 + 15 = .
+1 2 3 4 5 + + + + 15 = .
 ```
 
 ### Examples: multiple operators
@@ -83,7 +87,7 @@ This is the equivalent of the equation *(a + b) * c* where *a* = 1,
 *b* = 2, *c* = 3.
 
 ```forth
-3 1 2 + * .
+3 1 2 + * 9 = .
 ```
 
 Here, 3 and 9 are pushed onto the stack, then popped, summed, and the
@@ -93,7 +97,29 @@ Finally, the first two values on the stack are popped, multiplied, and
 the result is pushed onto the stack.
 
 ```forth
-3 9 + 4 6 + * .
+3 9 + 4 6 + * 120 = .
+```
+
+### Division
+
+* `/` returns the quotient only
+* `mod` returns the remainder only
+* `/mod` returns the remainder and quotient
+
+Let's test the results of each. Instead of displaying the result
+value (-1 for true, 0 for false), throw an exception if it isn't true.
+
+```forth
+5 2 / 2 =       0= s" test failed" exception and throw
+5 2 mod 1 =     0= s" test failed" exception and throw
+```
+
+`/mod` is `( n1 n2 — rem quot )`: that is, it returns both remainder and 
+quotient, with the quotient being the topmost item on the data stack.
+Test the result by summing remainder and quotient.
+
+```
+5 2 /mod + 3 =  0= s" test failed" exception and throw
 ```
 
 ## Execute this file
@@ -108,12 +134,15 @@ Type `bye' to exit
 2 2 * 4 = . -1  ok
 2 2 / 1 = . -1  ok
 2.0 2.0 + 4.0 = . 0  ok
-5 2 / . 2  ok
+5 2 / 2 = . -1  ok
 2 2 + . 4  ok
 : add4 4 + ;  ok
-1 add4 . 5  ok
-1 2 + 3 + 4 + 5 + . 15  ok
-1 2 3 4 5 + + + + . 15  ok
-3 1 2 + * . 9  ok
-3 9 + 4 6 + * . 120  ok
+1 add4 5 = . -1  ok
+1 2 + 3 + 4 + 5 + 15 = . -1  ok
+1 2 3 4 5 + + + + 15 = . -1  ok
+3 1 2 + * 9 = . -1  ok
+3 9 + 4 6 + * 120 = . -1  ok
+5 2 / 2 =       0= s" test failed" exception and throw  ok
+5 2 mod 1 =     0= s" test failed" exception and throw  ok
+5 2 /mod + 3 =  0= s" test failed" exception and throw  ok
 ```
