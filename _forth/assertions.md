@@ -18,14 +18,16 @@ title: 'Forth assertions'
 
 ## Gforth assertions
 
-Can only be used in compile-time (colon) definitions. Here, define a 
+Can only be used in compile-time (colon) definitions. Here, define a
 word `add1` that adds one to the number at the top of the stack. Then,
-define a test word `add1-test` that asserts something about the value
-pushed onto the stack by `add1`.
+define a test word `add1-test` that asserts a computable *flag* about
+the value pushed onto the stack by `add1`. If the assertion fails,
+execution stops; if the assertion succeeds, the value -1 (true) will
+be left on the stack by that computation of the flag.
 
 ```forth
 : add1 ( n -- n ) 1 + ;
-: add1-test 2 add1 assert( 3 = ) ;
+: add1-test ( -- f ) 2 add1 assert( 3 = ) ;
 add1-test
 ```
 
