@@ -41,6 +41,12 @@ bye
 $ gforth basics.forth
 ```
 
+### Interpreter and system state
+
+* `page` to clear display
+* `cold` to restart Forth environment
+* `bye` to exit Forth environment to OS
+
 ### Print debugging
 
 The word `~~` will print the source line and stack contents at that point.
