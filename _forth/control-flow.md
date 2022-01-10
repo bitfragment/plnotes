@@ -32,7 +32,7 @@ title: 'Forth control flow'
 ```forth
 0 0=        0= s" fail " exception and throw
 -1 0<       0= s" fail " exception and throw
-1 >0        0= s" fail " exception and throw
+1 0>        0= s" fail " exception and throw
 ```
 
 ## Conditional phrasing
@@ -165,4 +165,47 @@ Backtrace:
 $10DC789A8 throw 
 $10DCCB2D8 c(abort") 
 .s <0>  ok
+```
+
+## Execute this file
+
+```txt
+Gforth 0.7.3, Copyright (C) 1995-2008 Free Software Foundation, Inc.
+Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
+Type `bye' to exit
+1 1 =       0= s" fail " exception and throw  ok
+1 2 <>      0= s" fail " exception and throw  ok
+1 2 <       0= s" fail " exception and throw  ok
+2 1 >       0= s" fail " exception and throw  ok
+  ok
+0 0=        0= s" fail " exception and throw  ok
+-1 0<       0= s" fail " exception and throw  ok
+1 0>        0= s" fail " exception and throw  ok
+  ok
+: f ( -- 2 ) 1 if 2 then ;  ok
+: f-test ( -- ) f assert( 2 = ) ;  ok
+f-test  ok
+  ok
+: f ( -- 2 ) 0 invert if 2 then ;  ok
+: f-test ( -- ) f assert( 2 = ) ;  ok
+f-test  ok
+  ok
+: ?truthy ( any -- boolean ) if true else false then  ;  ok
+  ok
+: f  ( n -- n ) dup 11 < if 1 + else 1 - then ;  ok
+: f-test ( -- ) 5 f assert( 6 = ) clearstack 11 f assert( 10 = ) ;  ok
+f-test  ok
+  ok
+: test-bools  compiled
+  clearstack true true and assert( true = )  compiled
+  clearstack true false and assert( false = )  compiled
+  clearstack true true or assert( true = )  compiled
+  clearstack true false or assert( true = )  compiled
+  clearstack false false or assert( false = ) ;  ok
+test-bools  ok
+  ok
+: test-?dup  compiled
+  clearstack 1 ?dup + assert( 2 = )  compiled
+  clearstack 0 ?dup assert( 0 = ) ;  ok
+test-?dup  ok
 ```
