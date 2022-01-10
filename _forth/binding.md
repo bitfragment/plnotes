@@ -15,7 +15,10 @@ title: 'Forth binding'
   Chapter 3: The Editor (and Staff)
 * Leo Brodie, *[Thinking Forth]: A Language and Philosophy for Solving 
   Problems,* 2004 Edition, Chapter 1: The Philosophy of Forth
+* Edward K. Conklin and Elizabeth D. Rather, *[Forth Programmer's
+  Handbook]* 3rd edition, Chapter 1 Introduction
 
+[Forth Programmer's Handbook]: https://www.forth.com/product/forth-programmers-handbook/
 [Starting Forth]: https://www.forth.com/starting-forth/
 [Thinking Forth]: http://thinking-forth.sourceforge.net/
 
@@ -43,13 +46,38 @@ apples ?
 
 ## Word definitions
 
+> Forth allows any kind of ASCII string (except one containing spaces)
+> to be a valid name, and this introduces some ambiguities [...] For
+> instance, Fort calls subroutines *words*, but *word* could also mean
+> an addressable unit of memory. To resolve this, we use the following
+> conventions:
+> * A Forth execution procedure is called a *definition*. A *word* is
+>   the name of such a definition.
+> * The word length of the processor is always referred to as a *cell*.
+>   This is also the size of an address and the size of a single item on
+>   Forth's stacks.
+>
+> (Conklin and Rather, *Forth Programmer's Handbook 18)
+
 *Colon definitions* are compiled, not interpreted like other phrases
 in the environment.
+
+Format: `: <name> <words to be executed> ;`
 
 ```forth
 : f ( n -- n ) 1 + ;
 1 f 2 = 0= s" test failed " exception and throw
 ```
+
+Words can also be defined in assembler code, or function as data objects
+instead of procedures. But
+
+> [r]egardless of the kind of definition it is, each word is basically
+> the same: an executable function with a defined behavior. This is true
+> even of things that seem analogous to data objects in other languages
+> and things that look like punctuation. There is no punctuation in
+> Forth, and no syntax, just executable words. (Conklin and Rather,
+> *Forth Programmer's Handbook 19)
 
 You can redefine a word using a colon definition. Only the most recent
 definition will be executed, but earlier definitions will be retained
