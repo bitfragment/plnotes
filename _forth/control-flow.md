@@ -13,8 +13,11 @@ title: 'Forth control flow'
 * Leo Brodie, *[Starting Forth]: An Introduction to the FORTH Language
   and Operating System for Beginners and Professionals,* online edition,
   Chapter 4: Decisions, Decisions...
+* Edward K. Conklin and Elizabeth D. Rather, *[Forth Programmer's
+  Handbook]* 3rd edition, Chapter 4 Structured Programming
 
 [Starting Forth]: https://www.forth.com/starting-forth/
+[Forth Programmer's Handbook]: https://www.forth.com/product/forth-programmers-handbook/
 
 ## Operator equivalents
 
@@ -48,6 +51,49 @@ truthy, push 2 on to the stack.
 : f ( -- 2 ) 1 if 2 then ;
 : f-test ( -- ) f assert( 2 = ) ;
 f-test
+```
+
+Note that `if` modifies the stack. I did not understand this at first.
+
+> When `IF` is executed, the item on top of the stack is *removed* and
+> examined. (Conklin and Rather, *Forth Programmer's Handbook* 100)
+
+Demo via debugger:
+
+```forth
+: test if ." NONZERO " else ." ZERO" then ; ok
+-1 dbg test 
+: test  
+Scanning code...
+
+Nesting debugger ready!
+[ 1 ] 18446744073709551615 
+101E20710 1017E7458 IF             -> [ 0 ] 
+101E20720 1017E7450 .\" NONZERO "  -> NONZERO [ 0 ] 
+101E20768 1017E7450 ELSE           -> [ 0 ] 
+101E207C0 1017E7428 THEN ;         ->  ok
+
+0 dbg test  
+: test  
+Scanning code...
+
+Nesting debugger ready!
+[ 1 ] 00000 
+101E20710 1017E7458 IF             -> [ 0 ] 
+101E20778 1017E7450 .\" ZERO"      -> ZERO[ 0 ] 
+101E207C0 1017E7428 THEN ;         ->  ok
+
+1 dbg test 
+: test  
+Scanning code...
+
+Nesting debugger ready!
+[ 1 ] 00001 
+101E20710 1017E7458 IF             -> [ 0 ] 
+101E20720 1017E7450 .\" NONZERO "  -> NONZERO [ 0 ] 
+101E20768 1017E7450 ELSE           -> [ 0 ] 
+101E207C0 1017E7428 THEN ;         ->  ok
+
 ```
 
 ## invert
