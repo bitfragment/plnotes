@@ -21,6 +21,8 @@ title: 'Forth control flow'
 
 ## Operator equivalents
 
+These leave either a nonzero (true) or a zero (false) on the stack.
+
 `=` equal, `<>` not equal, `>` and `<`.
 
 ```forth
