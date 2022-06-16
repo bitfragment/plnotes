@@ -16,6 +16,30 @@ Addison-Wesley, 2016, Chapter 1: Tutorial
 
 [The Go Programming Language]: http://www.gopl.io/
 
+## Setup
+
+```go
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "image"
+    "image/color"
+    "image/gif"
+    "io"
+    "io/ioutil"
+    "log"
+    "math"
+    "math/rand"
+    "net/http"
+    "os"
+    "strings"
+    "sync"
+    "time"
+)
+```
+
 
 ## Read stdin
 
@@ -123,7 +147,77 @@ func dup3() {
 ``` 
 
 
+## Using standard image packages
+
+```go
+const (
+	whiteIndex = 0 // first color in palette
+	blackIndex = 1 // next color in palette
+)
+
+var palette = []color.Color{color.White, color.Black}
+
+// Create a Lissajous figure.
+func lissajous(out io.Writer) {
+	const (
+		cycles  = 5     // number of complex x oscillator revolutions
+		res     = 0.001 // angular resolution
+		size    = 100   // image canvas covers [-size..+size]
+		nframes = 64    // number of animation frames
+		delay   = 8     // delay between frames in 10ms units
+	)
+
+	freq := rand.Float64() * 3.0 // relative frequency of y oscillator
+	anim := gif.GIF{LoopCount: nframes}
+	phase := 0.0 // phase difference
+
+	// Create `nframes` images, each representing a frame of the
+	// animation, storing them in the struct `anim`, interspersed
+	// with delays of the value of `delay` each.
+	for i := 0; i < nframes; i++ {
+		rect := image.Rect(0, 0, 2*size+1, 2*size+1)
+		img := image.NewPaletted(rect, palette)
+
+		// Run the two oscillators.
+		for t := 0.0; t < cycles*2*math.Pi; t += res {
+
+			// x oscillator is a sine function.
+			x := math.Sin(t)
+
+			// Frequency of y oscillator incorporates a random
+			// value and the increasing value of `phase`.
+			y := math.Sin(t*freq + phase)
+
+			// Set the pixel x,y to a randomly chosen color.
+			img.SetColorIndex(
+				size+int(x*size+0.5),
+				size+int(y*size+0.5),
+				blackIndex)
+		}
+		phase += 0.1
+		anim.Delay = append(anim.Delay, delay)
+		anim.Image = append(anim.Image, img)
+	}
+
+	// Encode the sequence of frames and delays in `anim` and
+	// write to output.
+	gif.EncodeAll(out, &anim)
+}
+```
+
+
 ## Network I/O
+
+The `lissajous` program, the following `fetch*` programs, and the minimal
+web server use different types as output streams:
+
+- `lissajous` copies data to `os.Stdout`, a file
+- `fetchurl` copies HTTP response data to `os.Stdout`
+- `fetchall` discards the response by writing it `ioutil.Discard`
+- The web server uses `fmt.Fprintf` to write data to a
+  `http.ResponseWriter` that represents the browser.
+
+Fetch a URL.
 
 Demonstrated using the package `net/http` and a variation on the 
 `curl` utility.
@@ -190,24 +284,6 @@ func fetch(url string, ch chan<- string) {
 
 Returns the path component of the server access URL.
 
-Usage:
-```sh
-$ go run main.go &
-$ open http://localhost:8000
-Result:
-     URL.Path = "/"
-```
-
-```go
-package main
-
-import (
-    "fmt"
-    "log"
-    "net/http"
-)
-```
-
 Request is a struct of type http.Request, whose fields include one
 for the URL of the incoming request. Extract the path component
 from the request URL and send it back as the response.
@@ -226,25 +302,12 @@ func server() {
     http.HandleFunc("/", handler)
     log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
-
-func main() {
-    server()
-}
 ```
 
 
-## Adding a request counter
+## Server version 2: adding a request counter
 
 ```go
-package main
-
-import (
-    "fmt"
-    "log"
-    "net/http"
-    "sync"
-)
-
 var mu sync.Mutex
 var count int
 ```
@@ -254,7 +317,7 @@ Display the Path component of the requested URL.
 concurrent requests trying to update `count` as the same time.
 
 ```go
-func handler(w http.ResponseWriter, r *http.Request) {
+func handler2(w http.ResponseWriter, r *http.Request) {
     mu.Lock()
     count++
     mu.Unlock()
@@ -279,15 +342,82 @@ serve multiple requests simultaneously.
 ```go
 func server2() {
     // Handle request to /
-    http.HandleFunc("/", handler)
+    http.HandleFunc("/", handler2)
 
     // Handler request to /count
     http.HandleFunc("/count", counter)
     
     log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
+```
 
-func main() {
-    server2()
+
+## Server version 3: report headers and form data
+
+Version that echoes the HTTP request.
+
+```go
+func handler3(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
+    for k, v := range r.Header {
+        fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
+    }
+    fmt.Fprintf(w, "Host = %q\n", r.Host)
+    fmt.Fprintf(w, "RemoteAddr = %q\n", r.RemoteAddr)
+
+    // "Go allows a simple statement such as a local variable 
+    // declaration to precede the `if` condition, which is particularly
+    // useful for error handling as in this example [...] [this form] is
+    // shorter and reduces the scope of the variable `err`, which is 
+    // good practice." (22).
+    if err := r.ParseForm(); err != nil {
+        log.Print(err)
+    }
+
+    for k, v := range r.Form {
+        fmt.Fprintf(w, "Form[%q] = %q\n", k, v)
+    }
 }
+
+
+func server3() {
+    http.HandleFunc("/", handler3)
+    http.HandleFunc("/count", counter)
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+```
+
+
+## Server version 4: write Lissajous figures
+
+Version that writes animated GIFs to the HTTP client.
+
+```go
+func server4() {
+    // The second argument here "is a *function literal*, that is, an
+    // anonymous function defined at its point of use" (22).
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        lissajous(w)
+    })
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+```
+
+
+## `main()`, invoking `server4()`
+
+```go
+func main() {
+    server4()
+}
+```
+
+
+## Execute this file
+
+```txt
+$ codedown go < input-output.md | grep . > /tmp/tmp.go && go run /tmp/tmp.go &
+$ open http://localhost:8000
+Result:
+     URL.Path = "/"
 ```
