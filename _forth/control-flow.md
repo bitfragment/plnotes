@@ -19,6 +19,39 @@ title: 'Forth control flow'
 [Starting Forth]: https://www.forth.com/starting-forth/
 [Forth Programmer's Handbook]: https://www.forth.com/product/forth-programmers-handbook/
 
+## Boolean values
+
+Logical evaluation leaves a boolean *flag* on the stack. Nonzero values,
+including both 1 and -1, are interpreted as *true*, while a zero value
+is interpreted as *false*.
+
+The words `true` and `false` can also be used.
+
+```forth
+: test-bools-words
+  clearstack true true and assert( true = )
+  clearstack true false and assert( false = )
+  clearstack true true or assert( true = )
+  clearstack true false or assert( true = )
+  clearstack false false or assert( false = )
+;
+test-bools-words
+```
+
+However, when using these words, only the value -1 is interpreted as
+`true`:
+
+```forth
+: test-bools-vals
+  -1 -1 and assert( true = )
+  -1  0 and assert( false = )
+  -1 -1 or assert( true = )
+  -1  0 or assert( true = )
+   0  0 or assert( false = )
+;
+test-bools-vals
+```
+
 ## Operator equivalents
 
 These leave either a nonzero (true) or a zero (false) on the stack.
@@ -40,7 +73,7 @@ These leave either a nonzero (true) or a zero (false) on the stack.
 1 0>        0= s" fail " exception and throw
 ```
 
-## Conditional phrasing
+## Conditional phrasing: `if`...`else`...`then`
 
 Compile-time only, so can only be used in word definitions.
 
@@ -62,7 +95,7 @@ Note that `if` modifies the stack. I did not understand this at first.
 
 Demo via debugger:
 
-```forth
+```txt
 : test if ." NONZERO " else ." ZERO" then ; ok
 -1 dbg test 
 : test  
@@ -98,6 +131,91 @@ Nesting debugger ready!
 
 ```
 
+Because `if` evaluates any non-zero value as true, you can omit a
+comparison operator when, for example, you want to check if a number
+is zero:
+
+```forth
+: iszero ( n -- ) dup if ." NONZERO " else ." ZERO " drop then ;
+```
+
+Or if you want to check if two numbers are equal, here using
+subtraction:
+
+```forth
+: eq ( n n -- ) - if ." NOT EQUAL " else ." EQUAL " then ;
+```
+
+### Flag arithmetic
+
+You can use `swap` to combine flags from successive tests. Here, we
+want a flag indicating whether a number is either negative or greater
+than five.
+
+1. `dup` the number so we can test it twice.
+2. Test the number to see if it is negative. This will leave a logical
+   flag on the stack.
+3. `swap` the flag with the original number.
+4. Test the number to see if it is greater than five.
+5. We now have two flags on the stack. If we add them together, their
+   sum is a flag indicating the result of a logical `or` for these two
+   conditions.
+
+```forth
+: f ( n -- b ) dup 0< swap 5 > + ;
+
+: test-f ( -- )
+    -2 f assert( 0< )
+    -1 f assert( 0< )
+     0 f assert( 0= )
+     1 f assert( 0= )
+     2 f assert( 0= )
+     5 f assert( 0= )
+     6 f assert( 0< )
+;
+test-f
+```
+
+## Logical `and`, `or`
+
+For cases where adding flags would not produce an accurate logical
+result, there are the Forth words `and` and `or`. 
+
+Here, we want to know if a number is greater than 5 *and* a multiple of 5:
+
+```forth
+: f ( n -- b ) dup 5 > swap 5 mod 0= and ;
+: test-f ( -- )
+    -1 f assert( 0= )
+     0 f assert( 0= )
+     1 f assert( 0= )
+     5 f assert( 0= )
+     6 f assert( 0= )
+     9 f assert( 0= )
+    10 f assert( 0< )
+    11 f assert( 0= )
+    15 f assert( 0< )
+;
+test-f
+```
+
+Here, we want to know if a number is less than -5 *or* greater than 5:
+
+```forth
+: f ( n -- b ) dup -5 < swap 5 > or ;
+: test-f ( -- )
+    -10 f assert( 0< )
+     -5 f assert( 0= )
+     -1 f assert( 0= )
+      0 f assert( 0= )
+      1 f assert( 0= )
+      5 f assert( 0= )
+      6 f assert( 0< )
+     10 f assert( 0< )
+;
+test-f
+```
+
 ## invert
 
 Reverses the flag on the stack.
@@ -111,94 +229,20 @@ we invert the flag on the stack.
 f-test
 ```
 
-## else
+## Words with included conditionals
 
-It's logically straightforward but I find it difficult to use.
-
-The way to read it is to focus on the words between `if` and `then`.
-
-Here, `if` evaluates the value on the stack. If that value is truthy,
-`true` is pushed onto the stack. If that value is falsy, at `else`,
-`false` is pushed onto the stack.
-
-```forth
-: ?truthy ( any -- boolean ) if true else false then  ;
-```
-
-Here, evaluate the value on the stack. If it's < 11, increment it by 1.
-Otherwise, decrement it by 1.
-
-```forth
-: f  ( n -- n ) dup 11 < if 1 + else 1 - then ;
-: f-test ( -- ) 5 f assert( 6 = ) clearstack 11 f assert( 10 = ) ;
-f-test
-```
-
-Debug:
-
-```txt
-$ gforth-itc
-Gforth 0.7.3, Copyright (C) 1995-2008 Free Software Foundation, Inc.
-Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
-Type `bye' to exit
-: f  ( n -- n ) dup 11 < if 1 + else 1 - then ;  ok
-5 dbg f 
-: f  
-Scanning code...
-
-Nesting debugger ready!
-[ 1 ] 00005 
-104B9D270 104AB9838 dup            -> [ 2 ] 00005 00005 
-104B9D278 104AB9560 11             -> [ 3 ] 00005 00005 00011 
-104B9D288 104AB96C0 <              -> [ 2 ] 00005 18446744073709551615 
-104B9D290 104AB9458 IF             -> [ 1 ] 00005 
-104B9D2A0 104AB9560 1              -> [ 2 ] 00005 00001 
-104B9D2B0 104AB9568 +              -> [ 1 ] 00006 
-104B9D2B8 104AB9450 ELSE           -> [ 1 ] 00006 
-104B9D2E0 104AB9428 THEN ;         ->  ok
-clearstack 11 dbg f 
-: f  
-Scanning code...
-
-Nesting debugger ready!
-[ 1 ] 00011 
-104B9D270 104AB9838 dup            -> [ 2 ] 00011 00011 
-104B9D278 104AB9560 11             -> [ 3 ] 00011 00011 00011 
-104B9D288 104AB96C0 <              -> [ 2 ] 00011 00000 
-104B9D290 104AB9458 IF             -> [ 1 ] 00011 
-104B9D2C8 104AB9560 1              -> [ 2 ] 00011 00001 
-104B9D2D8 104AB9580 -              -> [ 1 ] 00010 
-104B9D2E0 104AB9428 THEN ;         ->  ok
-```
-
-## and, or
-
-Work as you would expect.
-
-```forth
-: test-bools
-  clearstack true true and assert( true = )
-  clearstack true false and assert( false = )
-  clearstack true true or assert( true = )
-  clearstack true false or assert( true = )
-  clearstack false false or assert( false = ) ;
-test-bools
-```
-
-## ?dup
-
-Duplicates the top stack value only if it is non-zero.
+`?dup` duplicates the top stack value only if it is non-zero:
 
 ```forth
 : test-?dup
-  clearstack 1 ?dup + assert( 2 = )
-  clearstack 0 ?dup assert( 0 = ) ;
+  1 ?dup + assert( 2 = )
+  0 ?dup assert( 0 = ) ;
 test-?dup
 ```
 
-## abort
-
-Aborts if the flag on the stack is true. Compile-time only.
+`abort` aborts if the flag on the stack is true. Compile-time only.
+Useful for aborting execution in case of an error that you can test for
+(e.g. division by zero).
 
 ```txt
 $ gforth-itc
@@ -218,42 +262,81 @@ $10DCCB2D8 c(abort")
 ## Execute this file
 
 ```txt
+[Running] codedown forth < control-flow.md | grep . | gforth
 Gforth 0.7.3, Copyright (C) 1995-2008 Free Software Foundation, Inc.
 Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
 Type `bye' to exit
-1 1 =       0= s" fail " exception and throw  ok
-1 2 <>      0= s" fail " exception and throw  ok
-1 2 <       0= s" fail " exception and throw  ok
-2 1 >       0= s" fail " exception and throw  ok
-  ok
-0 0=        0= s" fail " exception and throw  ok
--1 0<       0= s" fail " exception and throw  ok
-1 0>        0= s" fail " exception and throw  ok
-  ok
-: f ( -- 2 ) 1 if 2 then ;  ok
-: f-test ( -- ) f assert( 2 = ) ;  ok
-f-test  ok
-  ok
-: f ( -- 2 ) 0 invert if 2 then ;  ok
-: f-test ( -- ) f assert( 2 = ) ;  ok
-f-test  ok
-  ok
-: ?truthy ( any -- boolean ) if true else false then  ;  ok
-  ok
-: f  ( n -- n ) dup 11 < if 1 + else 1 - then ;  ok
-: f-test ( -- ) 5 f assert( 6 = ) clearstack 11 f assert( 10 = ) ;  ok
-f-test  ok
-  ok
-: test-bools  compiled
+: test-bools-words  compiled
   clearstack true true and assert( true = )  compiled
   clearstack true false and assert( false = )  compiled
   clearstack true true or assert( true = )  compiled
   clearstack true false or assert( true = )  compiled
-  clearstack false false or assert( false = ) ;  ok
-test-bools  ok
-  ok
+  clearstack false false or assert( false = )  compiled
+;  ok
+test-bools-words  ok
+: test-bools-vals  compiled
+  -1 -1 and assert( true = )  compiled
+  -1  0 and assert( false = )  compiled
+  -1 -1 or assert( true = )  compiled
+  -1  0 or assert( true = )  compiled
+   0  0 or assert( false = )  compiled
+;  ok
+test-bools-vals  ok
+1 1 =       0= s" fail " exception and throw  ok
+1 2 <>      0= s" fail " exception and throw  ok
+1 2 <       0= s" fail " exception and throw  ok
+2 1 >       0= s" fail " exception and throw  ok
+0 0=        0= s" fail " exception and throw  ok
+-1 0<       0= s" fail " exception and throw  ok
+1 0>        0= s" fail " exception and throw  ok
+: f ( -- 2 ) 1 if 2 then ;  ok
+: f-test ( -- ) f assert( 2 = ) ;  ok
+f-test  ok
+: iszero ( n -- ) dup if ." NONZERO " else ." ZERO " drop then ;  ok
+: eq ( n n -- ) - if ." NOT EQUAL " else ." EQUAL " then ;  ok
+redefined f  : f ( n -- b ) dup 0< swap 5 > + ;  ok
+: test-f ( -- )  compiled
+    -2 f assert( 0< )  compiled
+    -1 f assert( 0< )  compiled
+     0 f assert( 0= )  compiled
+     1 f assert( 0= )  compiled
+     2 f assert( 0= )  compiled
+     5 f assert( 0= )  compiled
+     6 f assert( 0< )  compiled
+;  ok
+test-f  ok
+redefined f  : f ( n -- b ) dup 5 > swap 5 mod 0= and ;  ok
+: test-f ( -- )  compiled
+    -1 f assert( 0= )  compiled
+     0 f assert( 0= )  compiled
+     1 f assert( 0= )  compiled
+     5 f assert( 0= )  compiled
+     6 f assert( 0= )  compiled
+     9 f assert( 0= )  compiled
+    10 f assert( 0< )  compiled
+    11 f assert( 0= )  compiled
+    15 f assert( 0< )  compiled
+;  ok
+redefined test-f  test-f  ok
+redefined f  : f ( n -- b ) dup -5 < swap 5 > or ;  ok
+: test-f ( -- )  compiled
+    -10 f assert( 0< )  compiled
+     -5 f assert( 0= )  compiled
+     -1 f assert( 0= )  compiled
+      0 f assert( 0= )  compiled
+      1 f assert( 0= )  compiled
+      5 f assert( 0= )  compiled
+      6 f assert( 0< )  compiled
+     10 f assert( 0< )  compiled
+;  ok
+redefined test-f  test-f  ok
+redefined f  : f ( -- 2 ) 0 invert if 2 then ;  ok
+redefined f-test  : f-test ( -- ) f assert( 2 = ) ;  ok
+f-test  ok
 : test-?dup  compiled
-  clearstack 1 ?dup + assert( 2 = )  compiled
-  clearstack 0 ?dup assert( 0 = ) ;  ok
+  1 ?dup + assert( 2 = )  compiled
+  0 ?dup assert( 0 = ) ;  ok
 test-?dup  ok
+
+[Done] exited with code=0 in 0.096 seconds
 ```
