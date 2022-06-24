@@ -418,6 +418,4 @@ func main() {
 ```txt
 $ codedown go < input-output.md | grep . > /tmp/tmp.go && go run /tmp/tmp.go &
 $ open http://localhost:8000
-Result:
-     URL.Path = "/"
 ```
