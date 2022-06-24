@@ -17,6 +17,16 @@ Addison-Wesley, 2016, Chapter 2: Program Structure
 [The Go Programming Language]: http://www.gopl.io/
 
 
+## Setup
+
+```go
+package main
+
+import (
+
+)
+```
+
 ## Conventions
 
 * Use short names
@@ -119,3 +129,20 @@ func main() {
 * Programs are lexically scoped within blocks
 * "Inner" (inside a nested block) declarations of a given name will *shadow* or *hide* "outer" declarations of the same name
 * Use `var` if you need to declare a universe-block (i.e. global) variable inside a function
+
+
+## `main()`
+
+```go
+func main() {
+    server4()
+}
+```
+
+
+## Execute this file
+
+```txt
+$ codedown go < input-output.md | grep . > /tmp/tmp.go && go run /tmp/tmp.go &
+$ open http://localhost:8000
+```
